@@ -39,8 +39,9 @@ userRouter.post("/login", async (req, res) => {
   }
 });
 
-userRouter.post("/register", async (req, res) => {
-  const { email, password,name } = req.body;
+userRouter.post("/signup", async (req, res) => {
+  const { email, password,fullname } = req.body;
+ 
   try {
     let existingUser = await User.findOne({ email });
     
@@ -49,14 +50,26 @@ userRouter.post("/register", async (req, res) => {
       return res.status(402).send({ message: "userRegistered already" });
     } else {
       const hashPassword = await bcrypt.hash(password, saltRounds);
-      console.log("4");
-     
+        
+      let result =  email.toLowerCase().includes("@masaischool.com")
+     if(result ){
       let user = await User.create({
         email,
-        name,
+        fullname,
+        role:"admin",
         password: hashPassword,
       });
       return  res.send({ message: "Sucessfully created" });
+     }else{
+      let user = await User.create({
+        email,
+        fullname,
+        password: hashPassword,
+      });
+      return  res.send({ message: "Sucessfully created" });
+     }
+       
+     
     }
   } catch (e) {
     res.status(404).send(e);
